@@ -8,15 +8,8 @@ import (
 )
 
 const askCode = 0
-const bidCode = 1
 const askText = "buy"
 const bidText = "sell"
-
-var pairCodeDict =  map[int]string{
-	121: "USDT_BTC",
-	265: "USDT_TRX",
-	149: "USDT_ETH",
-}
 
 func getPolonexPairList(poloniexParListJson []byte) ([]string, error) {
 	pairList, err := parseInputPairList(poloniexParListJson, "poloniex")
@@ -39,10 +32,13 @@ func getPolonexPairList(poloniexParListJson []byte) ([]string, error) {
 
 func parseInputPairList(pairJsonList []byte, pairKey string) ([]string, error) {
 	var pairListParsed map[string][]string
-	json.Unmarshal(pairJsonList, &pairListParsed)
+	err := json.Unmarshal(pairJsonList, &pairListParsed)
+	if err != nil {
+		return nil, err
+	}
 	pairList, ok := pairListParsed[pairKey]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("unknown pair key: %s", pairKey))
+		return nil, fmt.Errorf("unknown pair key: %s", pairKey)
 	}
 
 	return pairList, nil
@@ -59,19 +55,10 @@ func getRevertedPair(pair string) (string, error) {
 
 func getSideText(sideCode float64) string {
 	if (sideCode == askCode) {
-		return "buy"
+		return askText
 	} else {
-		return "sell"
+		return bidText
 	}
-}
-
-func getPairByCode(pairCode int) (string, error) {
-	pair, ok := pairCodeDict[pairCode]
-	if !ok {
-		return "", errors.New("unknown pair code")
-	}
-
-	return pair, nil
 }
 
 func getSubscribeCommand(pair string) ([]byte, error) {
