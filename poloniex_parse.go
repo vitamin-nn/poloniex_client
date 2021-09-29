@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
-	"reflect"
 	"strconv"
 	"time"
 )
@@ -50,8 +49,6 @@ func (pd *priceData) UnmarshalJSON(data []byte) error {
 	var rawData []interface{}
 	var err error
 	if err = json.Unmarshal(data, &rawData); err != nil {
-		log.Println(data)
-		log.Println("price data unmarshal error")
 		return err
 	}
 	// ["t", "<trade id>", <1 for buy 0 for sell>, "<price>", "<size>", <timestamp>, "<epoch_ms>"]
@@ -92,8 +89,6 @@ func (pd *priceData) UnmarshalJSON(data []byte) error {
 
 		unixTimeMsStr, ok := rawData[6].(string)
 		if !ok {
-			log.Panicln(reflect.TypeOf(rawData[6]))
-			log.Println(rawData[6])
 			return errors.New("can not parse time")
 		}
 		unixTimeMs, err := strconv.ParseInt(unixTimeMsStr, 10, 64)
